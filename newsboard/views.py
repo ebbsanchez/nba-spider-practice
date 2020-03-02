@@ -8,7 +8,13 @@ from newsboard.serializers import NewsBoardSerializer
 from rest_framework import viewsets
 
 
+
+
 # Create your views here.
+
+def index(request):
+	return render(request, 'newsboard/index.html')
+
 class NewsBoardViewSet(viewsets.ModelViewSet):
     queryset = NewsArticle.objects.all()
     serializer_class = NewsBoardSerializer

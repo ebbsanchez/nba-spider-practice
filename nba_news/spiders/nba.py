@@ -24,7 +24,6 @@ class NbaSpider(scrapy.Spider):
             logging.debug(link)
             target_path = response.urljoin(link)
             yield scrapy.Request(target_path, callback=self.parse_article)
-            break
 
         try:
             assert len(article_links) == 10
@@ -32,18 +31,20 @@ class NbaSpider(scrapy.Spider):
         except AssertionError as e:
             logging.warning("hit end? len(article_links) != 10.")
 
-
-       
-        # next_page = response.css(
-        #     '#news_list > div.pagelink > gonext > a:nth-child(1)::attr(href)').get()
-        # if next_page != None:
-        #     logging.info('next page.1')
-        #     yield response.follow(next_page, self.parse)
-        #     logging.info('next page.2')
-        # else:
-        #     logging.info('no next page, parsing end.')
-        #     logging.debug('FINISH')
-        #     logging.info("length = {}".format(len(all_article_links)))
+        next_page = response.css(
+            '#news_list > div.pagelink > gonext > a:nth-child(1)::attr(href)').get()
+        on_page = response.css(
+            "#news_list > div.pagelink > gopage > a.on").get()
+        on_page = BeautifulSoup(on_page, 'lxml').get_text()
+        logging.warning(on_page)
+        if next_page != None and on_page != "2":
+            logging.info('next page.1')
+            yield response.follow(next_page, self.parse)
+            logging.info('next page.2')
+        else:
+            logging.info('Parsing end.')
+            logging.debug('FINISH')
+            logging.info("length = {}".format(len(all_article_links)))
 
     
     def parse_article(self, response):
@@ -51,20 +52,13 @@ class NbaSpider(scrapy.Spider):
         logging.debug("Title= {}".format(title))
 
         content = response.css("#story_body_content > span").get()
-        print('--')
-        print(content)
-        print('--')
+        logging.debug(content)
         item = self.save_db(title, content)
         yield item
 
 
-
-
-
-
     def parse_catalog(self):
         pass
-    
 
     def get_articles_link_in_page(self, response):
         result_articles = []

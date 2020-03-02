@@ -23,6 +23,7 @@ router = DefaultRouter()
 router.register(r'newsboard', views.NewsBoardViewSet)
 
 urlpatterns = [
+	path('newsboard/', views.index),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls))
 ]
